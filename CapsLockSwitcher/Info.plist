@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleExecutable</key>
+    <string>$(EXECUTABLE_NAME)</string>
+    <key>CFBundleIdentifier</key>
+    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string> <!-- e.g., com.yourcompany.CapsLockSwitcher -->
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>$(PRODUCT_NAME)</string> <!-- CapsLockSwitcher -->
+    <key>CFBundlePackageType</key>
+    <string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>$(MACOSX_DEPLOYMENT_TARGET)</string> <!-- e.g., 11.0 or later recommended for TIS/EventTap -->
+
+    <!-- Agent Configuration -->
+    <key>LSUIElement</key>
+    <true/>
+
+    <!-- Permissions -->
+    <key>NSAccessibilityUsageDescription</key>
+    <string>CapsLockSwitcher needs to monitor keyboard events (only Caps Lock) to instantly switch between your chosen input sources. It does not log or store your typing.</string>
+
+    <!-- Optional: Prevent unexpected termination -->
+    <key>NSSupportsSuddenTermination</key>
+    <false/>
+
+    <!-- Ensure NO Main Storyboard or Nib File entries exist -->
+
+    <!-- Standard Entry Point -->
+    <key>NSPrincipalClass</key>
+    <string>NSApplication</string>
+    <key>NSHumanReadableCopyright</key>
+    <string>Copyright © 2025 doasync. All rights reserved.</string> <!-- Update Year/Name -->
+
+</dict>
+</plist>
