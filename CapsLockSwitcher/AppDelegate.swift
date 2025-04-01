@@ -63,6 +63,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         print("CapsLockSwitcher: Did Finish Launching")
+
+        // Set the override
+        manageCapsLockDelayOverride(setOverride: true)
+
         // Check permissions initially - prompt might not work on modern OS anyway
         let hasPermissions = checkAccessibilityPermissions(promptUserIfNeeded: false)
 
@@ -100,6 +104,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     func applicationWillTerminate(_ aNotification: Notification) {
         print("CapsLockSwitcher: Will Terminate")
+        manageCapsLockDelayOverride(setOverride: false) // Reset the override
         destroyEventTap() // Clean up the event tap
         // Remove status item (optional, system usually does it)
         if let item = statusItem {
@@ -739,7 +744,48 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
 
     // MARK: - Helper Functions
+    /// Manages the system-level CapsLockDelayOverride using hidutil.
+    /// - Parameter setOverride: If true, sets the delay override to 0. If false, attempts to reset the override
+    private func manageCapsLockDelayOverride(setOverride: Bool) {
+        // Use "0" to set the override, "200" to reset it to default.
+        let propertyValue = setOverride ? "0" : "200"
+        let jsonString = "{\"CapsLockDelayOverride\":\(propertyValue)}"
+        let actionDescription = setOverride ? "set CapsLockDelayOverride to 0" : "reset CapsLockDelayOverride"
 
+        print("CapsLockSwitcher: Attempting to \(actionDescription)...")
+
+        let process = Process()
+        // Ensure the path to hidutil is correct. /usr/bin/ is standard.
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/hidutil")
+        process.arguments = ["property", "--set", jsonString]
+
+        // Optional: Capture output/errors for debugging
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = pipe
+
+        do {
+            try process.run()
+            process.waitUntilExit() // Wait for the command to complete
+
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            if let output = String(data: data, encoding: .utf8), !output.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                 // Log output only if it's not empty to avoid noise
+                 print("hidutil output: \(output.trimmingCharacters(in: .whitespacesAndNewlines))")
+            }
+
+            if process.terminationStatus == 0 {
+                print("CapsLockSwitcher: Successfully \(actionDescription).")
+            } else {
+                // Log a warning if the command finished with an error status
+                print("Warning: hidutil command finished with status \(process.terminationStatus). \(actionDescription) might have failed.")
+            }
+        } catch {
+            // Log an error if process.run() itself throws (e.g., command not found)
+            print("Error executing hidutil to \(actionDescription): \(error.localizedDescription)")
+        }
+    }
+    
     /// Handles cleanup and UI update when permission loss is detected, run on main thread.
     private func handleSuspectedPermissionLoss() {
         // Ensure we are on the main thread for UI updates and state changes
