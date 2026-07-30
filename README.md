@@ -36,8 +36,9 @@ CapsLockSwitcher solves these problems by providing a dedicated, fast, and targe
 1.  Go to the [**Releases**](https://github.com/doasync/CapsLockSwitcher/releases) page of this repository. 
 2.  Download the latest `.app` file.
 3.  Copy `CapsLockSwitcher.app` to your `/Applications` folder.
-4.  Launch `CapsLockSwitcher` from your Applications folder.
-5.  Run `xattr -cr /Applications/CapsLockSwitcher.app` in the terminal
+4.  Run `chmod +x /Applications/CapsLockSwitcher.app/Contents/MacOS/CapsLockSwitcher` to make sure application is executable.
+5.  Launch `CapsLockSwitcher` from your Applications folder.
+6.  Run `xattr -cr /Applications/CapsLockSwitcher.app` in the terminal
 
 `xattr -cr /Applications/CapsLockSwitcher.app` removes extended attributes recursively (`-r`) and clears code signing attributes (`-c`) from the `CapsLockSwitcher.app` application. It's essentially stripping away the "downloaded from the internet" flags that macOS Gatekeeper uses to restrict the app's execution.
 
