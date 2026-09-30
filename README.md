@@ -59,6 +59,7 @@ CapsLockSwitcher solves these problems by providing a dedicated, fast, and targe
 4.  **Activate Switching:**
     *   Once two layouts are selected, the status bar icon will change to ⌨️ (`keyboard.fill`), and the status text will show "Switcher: Active".
     *   **Press the Caps Lock key!** It will now instantly switch between the two layouts you selected.
+    *   **Press Command+Caps Lock** to turn normal Caps Lock on or off without changing the input source. Either Command key works.
 5.  **(Optional) Launch on Startup:**
     *   Click the status bar icon.
     *   Select "Launch on Startup" to toggle the setting (requires macOS 13+). A checkmark indicates it's enabled.

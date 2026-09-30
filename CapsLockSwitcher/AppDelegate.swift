@@ -50,6 +50,11 @@ private func eventTapCallback(proxy: CGEventTapProxy, type: CGEventType, event: 
     }
     // **********************************************
 
+    if event.flags.contains(.maskCommand) {
+        let isRepeat = event.getIntegerValueField(.keyboardEventAutorepeat) != 0
+        return delegate.performCapsLockToggleIfActiveSync(isRepeat: isRepeat) ? nil : Unmanaged.passRetained(event)
+    }
+
     // Proceed with the switch logic only if the flag check passed
     let shouldConsume = delegate.performSwitchIfActiveSync()
 
@@ -75,6 +80,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private let hidCapsLockUsage = 0x700000039
     private let hidLangKeyUsage = 0x700000090 // Keyboard LANG1
     internal let triggerKeyCode = CGKeyCode(104)
+    private let capsLockController = CapsLockController()
 
     fileprivate enum AppOperationalState: String, CustomStringConvertible {
         case permissionsRequired = "Permissions Required"
@@ -344,6 +350,17 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     // MARK: - Synchronous Event Handling (Called from C callback for LANG)
+
+    fileprivate func performCapsLockToggleIfActiveSync(isRepeat: Bool) -> Bool {
+        guard state.currentOperationalState == .active else { return false }
+        if !isRepeat {
+            let result = capsLockController.toggle()
+            if result != KERN_SUCCESS {
+                Logger.hid.error("Caps Lock toggle failed: \(result)")
+            }
+        }
+        return true
+    }
 
     /// Performs the input source switch if the app is in the Active state.
     /// Called SYNCHRONOUSLY from the event tap callback. Must be non-blocking.
@@ -1108,7 +1125,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         guard let tap = CGEvent.tapCreate(
             tap: .cgSessionEventTap, // Monitor system-wide events
             place: .headInsertEventTap, // Insert tap early
-            options: .listenOnly, // Change to .listenOnly initially, callback decides consumption
+            options: .defaultTap, // Allow the callback to consume layout and Caps Lock shortcuts.
             eventsOfInterest: eventMask,
             callback: eventTapCallback,
             userInfo: selfPtr
