@@ -118,6 +118,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         Logger.app.info("CapsLockSwitcher (HID Remap): Did Finish Launching")
         manageHidRemapping(enable: false, context: "Launch Initial Reset") // Ensure reset on launch
 
+        _ = checkAccessibilityPermissions(promptUserIfNeeded: true)
+
         // Perform initial state check and UI setup
         determineStateAndSetupUI(context: "Launch")
 
@@ -315,7 +317,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
         // --- 9. Trigger Alerts ASYNCHRONOUSLY ---
         // Only show permission alert if needed AND state actually requires it AND not already showing
-        if determinedState == .permissionsRequired && !isShowingPermissionAlert && (context == "Launch" || stateChanged) {
+        if determinedState == .permissionsRequired && !isShowingPermissionAlert && (context != "Launch" && stateChanged) {
             isShowingPermissionAlert = true // Prevent spamming alerts
             Logger.permissions.info("Queueing Permission Alert (Context: \(context), State Changed: \(stateChanged))")
             DispatchQueue.main.async { [weak self] in
@@ -509,7 +511,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
         let alert = NSAlert()
         alert.messageText = "Permissions Required"
-        alert.informativeText = "\(Bundle.main.appName) needs Accessibility access to monitor Caps Lock key.\n\nPlease go to System Settings > Privacy & Security > Accessibility, find and enable \(Bundle.main.appName), or add it manually using the '+' button."
+        alert.informativeText = "\(Bundle.main.appName) needs Accessibility access to monitor Caps Lock key.\n\nPlease go to System Settings > Privacy & Security > Accessibility, find and enable \(Bundle.main.appName). The app requests registration in this list automatically."
         if triggeredByUserAction {
             alert.informativeText += "\n\nIf it's enabled but not working, try removing \(Bundle.main.appName) using the '-' button, then add it back again."
             alert.informativeText += "\n\nAfter granting/fixing permissions, click the menu bar icon again."
@@ -524,6 +526,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let response = alert.runModal() // This blocks until dismissed
 
         if response == .alertFirstButtonReturn {
+            _ = checkAccessibilityPermissions(promptUserIfNeeded: true)
             // Try opening the specific pane
             if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") {
                 NSWorkspace.shared.open(url)

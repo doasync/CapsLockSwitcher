@@ -48,7 +48,7 @@ CapsLockSwitcher solves these problems by providing a dedicated, fast, and targe
     *   The app *requires* **Accessibility** permissions to monitor the Caps Lock key.
     *   If permissions are needed, the icon will be ⚠️. Click it and select "Show Permissions Guide" or follow the automatic prompt (if shown).
     *   This will open **System Settings > Privacy & Security > Accessibility**.
-    *   Find `CapsLockSwitcher` in the list and enable the toggle next to it. If it's not listed, drag `CapsLockSwitcher.app` from your Applications folder into the list or use the '+' button.
+    *   Find `CapsLockSwitcher` in the list and enable the toggle next to it. The app requests registration in this list automatically. You must still enable its permission.
     *   *Note:* You might need to unlock the settings panel with your password.
 3.  **Configure Layouts:**
     *   Once permissions are granted, the icon should change to ⌨️....
